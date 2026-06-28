@@ -186,7 +186,7 @@
   <div class="container is-max-desktop">
     <h2 class="title is-3 has-text-centered">The Challenge</h2>
     <p class="big-question">
-      &ldquo;How can we adapt generalist policies at deployment time to go beyond their pre-training?&rdquo;
+      How can we adapt generalist policies at deployment time to go beyond their pre-training?
     </p>
 
     <div class="content has-text-justified">
@@ -213,9 +213,9 @@
         <span class="why-tag">Why prompting fails</span>
         <h4>Long-horizon prompts are out of support</h4>
         <p>
-          Ask a VLA to <span class="prompt">put the hammer on the plate and pick up the mushroom</span> and its action
-          distribution collapses into the wrong modes &mdash; it moves the <em>mushroom</em> and <em>spoon</em> instead. 
-          The model needs to decompose complex goals into achievable stages and ground these stages in physical behaviors, but zero-shot prompting struggles.
+          Ask a VLA to <span class="prompt">move the hammer to the plate, then grasp the mushroom</span> and its action
+          distribution collapses into the wrong modes &mdash; it moves the <em>mushroom</em> to the plate and grabs the <em>spoon</em> instead. 
+          <!-- The model needs to decompose complex goals into achievable stages and ground these stages in physical behaviors, but zero-shot prompting struggles. -->
           <!-- The model needs both decomposition <em>and</em> grounding, and zero-shot prompting delivers neither. -->
         </p>
         <div class="why-video">
@@ -228,8 +228,8 @@
         <span class="why-tag">Why a VLM isn't enough</span>
         <h4>VLMs decompose, but don't ground</h4>
         <p>
-          A VLM can break the goal into sensible-looking sub-instructions, which helps. But it has no idea which
-          commands actually work on <em>this</em> robot. Saying <span class="prompt">grasp the hammer</span> makes the VLA grab a spoon; only <span class="prompt">move down and grasp</span> without explicitly mentioning the hammer succeeds. Plausible
+          A VLM can break the goal into sensible sub-instructions, but has no idea which
+          commands actually work on <em>this</em> robot. Saying <span class="prompt">grasp the hammer</span> makes the VLA grab a spoon; only <span class="prompt">move down and grasp</span> succeeds. Plausible
           &ne; grounded.
         </p>
         <div class="why-video">
@@ -243,8 +243,8 @@
         <h4>RL grounds language in behavior</h4>
         <p>
           The only way to know which prompt actually makes progress is to <em>try it on the robot and learn from the
-          result</em>. SARL runs RL over the prompt space, learning a grounded mapping between semantic actions and the
-          physical behaviors they induce &mdash; achieving both decomposition and grounding.
+          result</em>. SARL runs RL over the prompt space, learning a grounded mapping between semantic actions and
+          physical behaviors, and achieving both decomposition and grounding.
         </p>
         <div class="why-video">
           <video autoplay muted loop playsinline>
@@ -260,7 +260,11 @@
 <!-- ===================== METHOD ===================== -->
 <section class="section" id="method" style="padding-top: 1rem;">
   <div class="container is-max-desktop">
-    <h2 class="title is-3 has-text-centered">Our Approach: Semantic Action RL</h2>
+    <h2 class="title is-3 has-text-centered">Semantic Action RL</h2>
+    <p class="big-question">
+      SARL runs RL over a VLA's language prompts,
+      lifting learning from robot actions to the semantic level.
+    </p>
 
     <div class="content has-text-justified">
       <p>
@@ -277,9 +281,10 @@
         the VLA turns it into robot actions, and the environment transitions and returns a reward. SARL learns a
         <strong>semantic Q-function</strong> <span class="prompt">Q_sem(s, &#8467;)</span> via temporal-difference
         backups that estimates how effective each prompt is at making task progress, and acts by sampling from the softmax
-        over these Q-values.
+        over these Q-values. Finally, naively searching over <em>all</em> possible prompts is intractable, so SARL uses a VLM to propose a
+        small set of candidate semantic actions from the current observation and task.
       </p>
-      <p>
+      <!-- <p>
         Naively searching over <em>all</em> possible prompts is intractable, so SARL uses a <strong>VLM to propose a
         small set of candidate semantic actions</strong> from the current observation and task &mdash; then RL does the
         rest. This is the crucial division of labor: <em>the VLM proposes plausible commands; RL grounds them in what
@@ -287,16 +292,32 @@
         deployment setting and training data the VLM never sees. By interleaving VLM queries with real-world
         interaction, SARL gets the best of both worlds &mdash; the VLM's semantic priors, plus grounded improvement
         over them from experience.
-      </p>
+      </p> -->
     </div>
 
-    <div class="takeaway">
+    <div class="algo-box">
+      <div class="algo-title">Algorithm 1 &nbsp;&middot;&nbsp; Semantic Action RL (SARL)</div>
+      <ol class="algo-steps">
+        <li><span class="algo-kw">Initialize</span> the semantic Q-function <span class="prompt">Q_sem(s, &#8467;)</span> and an empty replay buffer <span class="prompt">B</span>.</li>
+        <li><span class="algo-kw">For</span> each step <span class="prompt">t = 1, 2, 3, &hellip;</span> :
+          <ol class="algo-substeps">
+            <li>Query the <strong>VLM</strong> for a small set of candidate prompts <span class="prompt">A_sem</span> from the current observation and task goal.</li>
+            <li>Sample a prompt <span class="prompt">&#8467;</span> from <span class="prompt">softmax(Q_sem(s, &middot;))</span> &mdash; prompts with higher Q are more likely.</li>
+            <li>The <strong>VLA</strong> executes <span class="prompt">&#8467;</span> as robot actions; observe reward <span class="prompt">r</span> and next state <span class="prompt">s'</span>.</li>
+            <li>Add the transition <span class="prompt">(s, &#8467;, r, s')</span> to the buffer <span class="prompt">B</span>.</li>
+            <li>Update <span class="prompt">Q_sem</span> toward <span class="prompt">r + V_sem(s')</span> with TD backups over <span class="prompt">B</span>.</li>
+          </ol>
+        </li>
+      </ol>
+    </div>
+
+    <!-- <div class="takeaway">
       <div class="takeaway-kicker">Key idea</div>
       <div class="takeaway-main">
         Prior robotic RL steers <em>robot actions</em>. SARL runs RL over the <span class="hl">language prompt itself</span>,
         lifting learning from low-level control to the semantic level.
       </div>
-    </div>
+    </div> -->
   </div>
 </section>
 
@@ -317,11 +338,11 @@
       </p>
     </div>
 
-    <div class="content has-text-centered">
+    <!-- <div class="content has-text-centered">
       <p class="is-size-6 has-text-grey">
         Representative rollouts for each task and method are below.
       </p>
-    </div>
+    </div> -->
 
     <!--
       ============================================================
@@ -337,8 +358,7 @@
 
     <!-- Task 1 -->
     <div class="task-block">
-      <div class="task-heading">Task 1</div>
-      <div class="task-prompt">Move the hammer to the plate. Then, grasp the mushroom.</div>
+      <div class="task-label">Task 1 &mdash; Move the hammer to the plate. Then, grasp the mushroom.</div>
       <div class="video-row">
         <div class="video-cell ours">
           <div class="method-label">SARL (Ours)</div>
@@ -373,8 +393,7 @@
 
     <!-- Task 2 -->
     <div class="task-block">
-      <div class="task-heading">Task 2</div>
-      <div class="task-prompt">Move the banana to the pot on the right and sushi to the bowl.</div>
+      <div class="task-label">Task 2 &mdash; Move the banana to the pot on the right and sushi to the bowl.</div>
       <div class="video-row">
         <div class="video-cell ours">
           <div class="method-label">SARL (Ours)</div>
@@ -401,8 +420,7 @@
 
     <!-- Task 3 -->
     <div class="task-block">
-      <div class="task-heading">Task 3</div>
-      <div class="task-prompt">Move the left stuffed toy to the largest bowl.</div>
+      <div class="task-label">Task 3 &mdash; Move the left stuffed toy to the largest bowl.</div>
       <div class="video-row">
         <div class="video-cell ours">
           <div class="method-label">SARL (Ours)</div>
@@ -429,8 +447,7 @@
 
     <!-- Task 4 -->
     <div class="task-block">
-      <div class="task-heading">Task 4</div>
-      <div class="task-prompt">Move the pot lid to the towel.</div>
+      <div class="task-label">Task 4 &mdash; Move the pot lid to the towel.</div>
       <div class="video-row">
         <div class="video-cell ours">
           <div class="method-label">SARL (Ours)</div>
@@ -469,7 +486,8 @@
         SARL improves the base VLA's success rate from near 0% under the task prompt up to ~80% after only
         <strong>60&ndash;100 online episodes</strong>, in both the real world and simulation. It beats action-space RL
         methods (DSRL, Residual RL) that are fundamentally limited by the base policy's behavior under a single fixed
-        prompt, and it beats an in-context-learning VLM baseline that proposes plausible commands but can't ground them.
+        prompt, and it beats an in-context-learning VLM baseline that proposes plausible commands but struggles to ground 
+        them in physical behavior.
       </p>
     </div>
 
@@ -478,9 +496,7 @@
       <p class="fig-caption">
         <span class="fig-num">Real-world WidowX.</span>
         Across all four long-horizon tasks, SARL achieves the best improvement of generalist-policy behavior in
-        deployment. It unlocks new capabilities over steering methods like DSRL and Residual RL &mdash; which are
-        constrained by the base policy's performance under the original prompt &mdash; and over an in-context-learning
-        VLM (ICL VLM), which struggles to ground its commands in physical behavior. Each data point is 10 evaluations.
+        deployment. Each data point is 10 evaluations.
       </p>
     </div>
 
@@ -494,37 +510,43 @@
       </p>
     </div>
 
-    <div class="subsection-head">
-      <div class="subsection-kicker">Why it works:</div>
-      <h3 class="subsection-title">Editing prompts unlocks new behavior</h3>
-    </div>
-    <div class="fig">
-      <img src="./static/images/figures/sarl-vs-base.png" alt="SARL vs. zero-shot base policy.">
-      <p class="fig-caption">
-        <span class="fig-num">SARL vs. action-space RL.</span>
-        On complex, long-horizon tasks the base policy fails when zero-shot prompted &mdash; its action distribution
-        collapses into entirely incorrect modes. Action-space methods can only filter or nudge around that distribution,
-        so they only learn when the base policy is <em>already</em> close to succeeding. By editing the prompt, SARL
-        reaches regions of the VLA's behavioral prior that are inaccessible to action-only steering, sequencing skills
-        covered under pretraining to solve the task.
-      </p>
-    </div>
+    <details class="why-works">
+      <summary>
+        <span class="subsection-kicker">SARL vs. Action-Space RL:</span>
+        <span class="subsection-title">Editing prompts unlocks new behavior</span>
+        <span class="why-works-chevron" aria-hidden="true"><i class="fas fa-chevron-down"></i></span>
+      </summary>
+      <div class="fig">
+        <img src="./static/images/figures/sarl-vs-base.png" alt="SARL vs. zero-shot base policy.">
+        <p class="fig-caption">
+          <span class="fig-num">SARL vs. action-space RL.</span>
+          On complex, long-horizon tasks the base policy fails when zero-shot prompted &mdash; its action distribution
+          collapses into entirely incorrect modes. Action-space methods can only filter or nudge around that distribution,
+          so they only learn when the base policy is <em>already</em> close to succeeding. By editing the prompt, SARL
+          reaches regions of the VLA's behavioral prior that are inaccessible to action-only steering, sequencing skills
+          covered under pretraining to solve the task.
+        </p>
+      </div>
+    </details>
 
-    <div class="subsection-head">
-      <div class="subsection-kicker">Why it works:</div>
-      <h3 class="subsection-title">Grounding is as important as decomposition</h3>
-    </div>
-    <div class="fig">
-      <img src="./static/images/figures/sarl-vs-vlm.png" alt="SARL vs. in-context-learning VLM.">
-      <p class="fig-caption">
-        <span class="fig-num">SARL vs. VLM prompting.</span>
-        An in-context-learning VLM picks commands that are semantically meaningful but lack grounding, leading to
-        failures: it references an out-of-distribution &ldquo;hammer&rdquo; by name (making the VLA grab a spoon), or
-        picks the wrong verb (<span class="prompt">drop</span>), prematurely releasing the sushi. Through many episodes
-        of experience, SARL learns the grounded behavior each command induces and selects the prompt that actually
-        works.
-      </p>
-    </div>
+    <details class="why-works">
+      <summary>
+        <span class="subsection-kicker">SARL vs. VLM:</span>
+        <span class="subsection-title">Grounding is as important as decomposition</span>
+        <span class="why-works-chevron" aria-hidden="true"><i class="fas fa-chevron-down"></i></span>
+      </summary>
+      <div class="fig">
+        <img src="./static/images/figures/sarl-vs-vlm.png" alt="SARL vs. in-context-learning VLM.">
+        <p class="fig-caption">
+          <span class="fig-num">SARL vs. VLM prompting.</span>
+          An in-context-learning VLM picks commands that are semantically meaningful but lack grounding, leading to
+          failures: it references an out-of-distribution &ldquo;hammer&rdquo; by name (making the VLA grab a spoon), or
+          picks the wrong verb (<span class="prompt">drop</span>), prematurely releasing the sushi. Through many episodes
+          of experience, SARL learns the grounded behavior each command induces and selects the prompt that actually
+          works.
+        </p>
+      </div>
+    </details>
   </div>
 </section>
 
@@ -581,12 +603,17 @@
 <section class="section" id="BibTeX">
   <div class="container is-max-desktop content">
     <h2 class="title">BibTeX</h2>
-    <pre><code>@inproceedings{bhatia2026sarl,
+    <div class="bibtex-block">
+      <button class="bibtex-copy" type="button" aria-label="Copy BibTeX to clipboard">
+        <i class="fas fa-copy"></i><span class="bibtex-copy-text">Copy</span>
+      </button>
+      <pre><code id="bibtex-code">@inproceedings{bhatia2026sarl,
   author    = {Bhatia, Jagdeep Singh and Wagenmaker, Andrew and Chen, William and Levine, Sergey},
   title     = {Adapting Generalist Robot Policies with Semantic Reinforcement Learning},
   booktitle = {Conference on Robot Learning (CoRL)},
   year      = {2026},
 }</code></pre>
+    </div>
   </div>
 </section>
 
@@ -625,6 +652,42 @@
       v.addEventListener('mouseenter', function () { v.controls = true; });
       v.addEventListener('mouseleave', function () { v.controls = false; });
     });
+
+    // Copy the BibTeX block to the clipboard.
+    var copyBtn = document.querySelector('.bibtex-copy');
+    var bibCode = document.getElementById('bibtex-code');
+    if (copyBtn && bibCode) {
+      var label = copyBtn.querySelector('.bibtex-copy-text');
+      var icon = copyBtn.querySelector('i');
+      copyBtn.addEventListener('click', function () {
+        var text = bibCode.innerText;
+        var done = function () {
+          copyBtn.classList.add('copied');
+          if (label) { label.textContent = 'Copied'; }
+          if (icon) { icon.className = 'fas fa-check'; }
+          setTimeout(function () {
+            copyBtn.classList.remove('copied');
+            if (label) { label.textContent = 'Copy'; }
+            if (icon) { icon.className = 'fas fa-copy'; }
+          }, 2000);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done).catch(function () { fallbackCopy(text, done); });
+        } else {
+          fallbackCopy(text, done);
+        }
+      });
+    }
+    function fallbackCopy(text, done) {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); done(); } catch (e) {}
+      document.body.removeChild(ta);
+    }
 
     // Performance: only play videos while they're on screen. Off-screen
     // videos pause so the browser isn't decoding everything at once.
