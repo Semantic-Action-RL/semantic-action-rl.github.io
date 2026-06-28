@@ -1,0 +1,8 @@
+# Claude Code guidance — local only, not part of the published site
+CLAUDE.md
+
+# Paper source-of-truth material — not part of the published site
+reference/
+
+# macOS
+.DS_Store

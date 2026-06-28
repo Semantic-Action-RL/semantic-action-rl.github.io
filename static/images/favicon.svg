@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- SARL favicon: a language/chat bubble (semantic action) holding a robot gripper (the action it induces) -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2aa3f2"/>
+      <stop offset="1" stop-color="#1477d6"/>
+    </linearGradient>
+  </defs>
+
+  <!-- rounded tile -->
+  <rect x="0" y="0" width="64" height="64" rx="14" fill="url(#bg)"/>
+
+  <!-- speech bubble (language prompt) -->
+  <path d="M16 14 h32 a6 6 0 0 1 6 6 v18 a6 6 0 0 1 -6 6 h-19 l-9 8 v-8 h-4 a6 6 0 0 1 -6 -6 v-18 a6 6 0 0 1 6 -6 z"
+        fill="#ffffff"/>
+
+  <!-- robot gripper (the grounded action) -->
+  <g fill="none" stroke="#1477d6" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- arm -->
+    <line x1="32" y1="17" x2="32" y2="23"/>
+    <!-- hexagonal shoulders: two slanted lines off the wrist -->
+    <path d="M24 29 L32 23 L40 29"/>
+    <!-- left claw -->
+    <path d="M24 29 v4 a3 3 0 0 0 3 3"/>
+    <!-- right claw -->
+    <path d="M40 29 v4 a3 3 0 0 1 -3 3"/>
+  </g>
+</svg>
