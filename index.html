@@ -31,25 +31,16 @@
 </head>
 <body>
 
-<nav class="navbar" role="navigation" aria-label="main navigation">
-  <div class="navbar-brand">
-    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
-      <span aria-hidden="true"></span>
-      <span aria-hidden="true"></span>
-      <span aria-hidden="true"></span>
-    </a>
-  </div>
-  <div class="navbar-menu">
-    <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
-      <a class="navbar-item" href="#tldr">TL;DR</a>
-      <a class="navbar-item" href="#challenge">The Challenge</a>
-      <a class="navbar-item" href="#method">Method</a>
-      <a class="navbar-item" href="#tasks">Tasks &amp; Rollouts</a>
-      <a class="navbar-item" href="#results">Results</a>
-      <a class="navbar-item" href="#timelapses">Training</a>
-      <a class="navbar-item" href="#BibTeX">BibTeX</a>
-    </div>
-  </div>
+<nav class="side-nav" role="navigation" aria-label="section navigation">
+  <ul>
+    <li><a href="#tldr" data-target="tldr"><span class="tick"></span><span class="nav-label">TL;DR</span></a></li>
+    <li><a href="#challenge" data-target="challenge"><span class="tick"></span><span class="nav-label">The Challenge</span></a></li>
+    <li><a href="#method" data-target="method"><span class="tick"></span><span class="nav-label">Method</span></a></li>
+    <li><a href="#tasks" data-target="tasks"><span class="tick"></span><span class="nav-label">Tasks &amp; Rollouts</span></a></li>
+    <li><a href="#results" data-target="results"><span class="tick"></span><span class="nav-label">Results</span></a></li>
+    <li><a href="#timelapses" data-target="timelapses"><span class="tick"></span><span class="nav-label">Training</span></a></li>
+    <li><a href="#BibTeX" data-target="BibTeX"><span class="tick"></span><span class="nav-label">BibTeX</span></a></li>
+  </ul>
 </nav>
 
 
@@ -636,15 +627,27 @@
 </footer>
 
 <script>
-  // Navbar burger toggle (mobile).
   document.addEventListener('DOMContentLoaded', function () {
-    var burger = document.querySelector('.navbar-burger');
-    var menu = document.querySelector('.navbar-menu');
-    if (burger && menu) {
-      burger.addEventListener('click', function () {
-        burger.classList.toggle('is-active');
-        menu.classList.toggle('is-active');
-      });
+    // Scroll-spy: highlight the side-nav item for the section in view.
+    var navLinks = document.querySelectorAll('.side-nav a');
+    var linkByTarget = {};
+    var spiedSections = [];
+    navLinks.forEach(function (a) {
+      var id = a.getAttribute('data-target');
+      var sec = document.getElementById(id);
+      if (sec) { linkByTarget[id] = a; spiedSections.push(sec); }
+    });
+    if ('IntersectionObserver' in window && spiedSections.length) {
+      var setActive = function (id) {
+        navLinks.forEach(function (l) { l.classList.remove('active'); });
+        if (linkByTarget[id]) { linkByTarget[id].classList.add('active'); }
+      };
+      var spy = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) { setActive(entry.target.id); }
+        });
+      }, { rootMargin: '-40% 0px -55% 0px', threshold: 0 });
+      spiedSections.forEach(function (s) { spy.observe(s); });
     }
 
     // Show native video controls only while hovering the video.
