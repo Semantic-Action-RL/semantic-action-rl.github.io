@@ -111,13 +111,16 @@
         <div class="tldr">
           <p>
             <span class="tldr-label">TL;DR</span>
-            Generalist robot policies (VLAs) already know a lot of skills, but directly prompting them to do a new
+            <!-- Generalist robot policies (VLAs) already know a lot of skills, but directly prompting them to do a new
             complex task usually fails. Instead of running RL over low-level robot actions (as prior work does),
             <strong>we treat the VLA's language prompt as the action of an RL agent</strong> &mdash; a
             <em>&ldquo;semantic action.&rdquo;</em> Learning <em>which prompts to send, when</em> lets the policy compose
             skills it already has into long-horizon behaviors it can't do zero-shot. We call this
             <strong>Semantic Action Reinforcement Learning (SARL)</strong>. It adapts a real WidowX robot in under
-            100 episodes and unlocks tasks that action-space RL and VLM prompting can't solve.
+            100 episodes and unlocks tasks that action-space RL and VLM prompting can't solve. -->
+            We propose <strong>optimizing the prompt inputs</strong> of generalist robot policies with reinforcement learning, 
+            enabling efficient real-robot adaptation on complex & long-horizon tasks, where existing methods for 
+            improving robot behavior in deployment struggle.
           </p>
         </div>
       </div>
@@ -183,11 +186,14 @@
     <div class="content has-text-justified">
       <p>
         Vision-language-action (VLA) models learn broad skill repertoires from pretraining, giving us powerful priors
-        over plausible robot behaviors. The obvious strategy is to just <em>prompt</em> these models with a new, desired task goal. But
-        a successful policy must do two things at once: it must <strong>decompose</strong> the goal into atomic,
+        over plausible robot behaviors. The standard strategy is to just <em>prompt</em> these models with new, desired task goals. 
+        However, as tasks scale in complexity and horizon, a successful policy must implicitly <strong>decompose</strong> goals into atomic,
+        executable behaviors, <em>and</em> <strong>ground</strong> each behavior in a skill the robot can actually pull
+        off in its current context. Often, directly prompting a VLA with a challenging goal fails.
+        <!-- a successful policy must do two things at once: it must <strong>decompose</strong> the goal into atomic,
         executable behaviors, <em>and</em> <strong>ground</strong> each behavior in a skill the robot can actually pull
         off in its current context. As tasks scale in complexity and horizon, directly prompting a VLA with the full
-        task goal typically fails.
+        task goal typically fails. -->
       </p>
     </div>
 
@@ -233,9 +239,9 @@
         <span class="why-tag">Why we need RL</span>
         <h4>RL grounds language in behavior</h4>
         <p>
-          The only way to know which prompt actually makes progress is to <em>try it on the robot and learn from the
+          The only way to know which prompts actually make progress is to <em>try them on the robot and learn from the
           result</em>. SARL runs RL over the prompt space, learning a grounded mapping between semantic actions and
-          physical behaviors, and achieving both decomposition and grounding.
+          physical behaviors, achieving both decomposition and grounding.
         </p>
         <div class="why-video">
           <video autoplay muted loop playsinline>
@@ -489,7 +495,7 @@
       <p class="fig-caption">
         <span class="fig-num">Real-world WidowX.</span>
         Across all four long-horizon tasks, SARL achieves the best improvement of generalist-policy behavior in
-        deployment. Each data point is 10 evaluations.
+        deployment. Each data point represents 10 evaluations.
       </p>
     </div>
 
@@ -498,7 +504,7 @@
       <p class="fig-caption">
         <span class="fig-num">Simulated LIBERO-10.</span>
         On long-horizon LIBERO-10 tasks, SARL outperforms DSRL, Residual RL, and the ICL VLM. It successfully adapts the
-        policy on five tasks and matches performance on another that is already near-solved. Each point is 64
+        policy on five tasks and matches performance on another that is already near-solved. Each point represents 64
         evaluations with standard error over 3 seeds.
       </p>
     </div>
@@ -600,10 +606,15 @@
       <button class="bibtex-copy" type="button" aria-label="Copy BibTeX to clipboard">
         <i class="fas fa-copy"></i><span class="bibtex-copy-text">Copy</span>
       </button>
-      <pre><code id="bibtex-code">@inproceedings{bhatia2026sarl,
+      <!-- <pre><code id="bibtex-code">@inproceedings{bhatia2026sarl,
   author    = {Bhatia, Jagdeep Singh and Wagenmaker, Andrew and Chen, William and Levine, Sergey},
   title     = {Adapting Generalist Robot Policies with Semantic Reinforcement Learning},
   booktitle = {Conference on Robot Learning (CoRL)},
+  year      = {2026},
+}</code></pre> -->
+      <pre><code id="bibtex-code">@misc{bhatia2026sarl,
+  author    = {Bhatia, Jagdeep Singh and Wagenmaker, Andrew and Chen, William and Levine, Sergey},
+  title     = {Adapting Generalist Robot Policies with Semantic Reinforcement Learning},
   year      = {2026},
 }</code></pre>
     </div>
