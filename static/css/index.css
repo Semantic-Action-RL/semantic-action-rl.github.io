@@ -267,6 +267,11 @@ html {
   font-size: 0.85em;
   white-space: nowrap;
 }
+/* KaTeX-rendered math keeps the prompt pill's blue color/highlight */
+.prompt .katex {
+  font-size: 1.3em;
+  color: inherit;
+}
 
 /* Teaser figure + TL;DR — no card; sits directly on the page. */
 .teaser-unit {

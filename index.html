@@ -23,6 +23,10 @@
   <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
   <link rel="stylesheet"
         href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <!-- KaTeX for rendering math notation in the Method section -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
   <link rel="stylesheet" href="./static/css/index.css?v=2">
   <link rel="icon" href="./static/images/favicon.svg">
 
@@ -268,15 +272,15 @@
         Rather than viewing a VLA as a policy to be statically prompted, we view it as a <strong>semantically
         controllable action prior</strong> that can be dynamically guided throughout deployment. This motivates a
         simple but powerful transformation of the RL problem: instead of learning over the robot action space
-        <span class="prompt">A_robot</span> (joint positions, end-effector deltas&hellip;), we learn over a
-        <strong>semantic action space</strong> <span class="prompt">A_sem</span> &mdash; the space of language commands &mdash;
+        <span class="prompt">\(\mathcal{A}_{\mathrm{robot}}\)</span> (joint positions, end-effector deltas, etc.), we learn over a
+        <strong>semantic action space</strong> <span class="prompt">\(\mathcal{A}_{\mathrm{sem}}\)</span> &mdash; the space of language commands &mdash;
         and deploy the VLA as a transformation between the two. We call the resulting induced problem a
         <em>semantic MDP</em>.
       </p>
       <p>
-        Concretely, at each step SARL picks a <em>semantic action</em> (a prompt) <span class="prompt">&#8467;</span>,
+        Concretely, at each step SARL picks a <em>semantic action</em> (a prompt) <span class="prompt">\(\ell\)</span>,
         the VLA turns it into robot actions, and the environment transitions and returns a reward. SARL learns a
-        <strong>semantic Q-function</strong> <span class="prompt">Q_sem(s, &#8467;)</span> via temporal-difference
+        <strong>semantic Q-function</strong> <span class="prompt">\(Q_{\mathrm{sem}}(s, \ell)\)</span> via temporal-difference
         backups that estimates how effective each prompt is at making task progress, and acts by sampling from the softmax
         over these Q-values. Finally, naively searching over <em>all</em> possible prompts is intractable, so SARL uses a VLM to propose a
         small set of candidate semantic actions from the current observation and task.
@@ -295,14 +299,14 @@
     <div class="algo-box">
       <div class="algo-title">Algorithm 1 &nbsp;&middot;&nbsp; Semantic Action RL (SARL)</div>
       <ol class="algo-steps">
-        <li><span class="algo-kw">Initialize</span> the semantic Q-function <span class="prompt">Q_sem(s, &#8467;)</span> and an empty replay buffer <span class="prompt">B</span>.</li>
-        <li><span class="algo-kw">For</span> each step <span class="prompt">t = 1, 2, 3, &hellip;</span> :
+        <li><span class="algo-kw">Initialize</span> the semantic Q-function <span class="prompt">\(Q_{\mathrm{sem}}(s, \ell)\)</span> and an empty replay buffer <span class="prompt">\(\mathcal{B}\)</span>.</li>
+        <li><span class="algo-kw">For</span> each step <span class="prompt">\(t = 1, 2, 3, \ldots\)</span> :
           <ol class="algo-substeps">
-            <li>Query the <strong>VLM</strong> for a small set of candidate prompts <span class="prompt">A_sem</span> from the current observation and task goal.</li>
-            <li>Sample a prompt <span class="prompt">&#8467;</span> from <span class="prompt">softmax(Q_sem(s, &middot;))</span> &mdash; prompts with higher Q are more likely.</li>
-            <li>The <strong>VLA</strong> executes <span class="prompt">&#8467;</span> as robot actions; observe reward <span class="prompt">r</span> and next state <span class="prompt">s'</span>.</li>
-            <li>Add the transition <span class="prompt">(s, &#8467;, r, s')</span> to the buffer <span class="prompt">B</span>.</li>
-            <li>Update <span class="prompt">Q_sem</span> toward <span class="prompt">r + V_sem(s')</span> with TD backups over <span class="prompt">B</span>.</li>
+            <li>Query the <strong>VLM</strong> for a small set of candidate prompts <span class="prompt">\(\mathcal{A}_{\mathrm{sem}}\)</span> from the current observation and task goal.</li>
+            <li>Sample a prompt <span class="prompt">\(\ell\)</span> from <span class="prompt">\(\mathrm{softmax}(Q_{\mathrm{sem}}(s, \cdot))\)</span> &mdash; prompts with higher Q-values are more likely.</li>
+            <li>The <strong>VLA</strong> executes <span class="prompt">\(\ell\)</span> as robot actions; observe reward <span class="prompt">\(r\)</span> and next state <span class="prompt">\(s'\)</span>.</li>
+            <li>Add the transition <span class="prompt">\((s, \ell, r, s')\)</span> to the buffer <span class="prompt">\(\mathcal{B}\)</span>.</li>
+            <li>Update <span class="prompt">\(Q_{\mathrm{sem}}\)</span> toward <span class="prompt">\(r + V_{\mathrm{sem}}(s')\)</span> with TD backups over <span class="prompt">\(\mathcal{B}\)</span>.</li>
           </ol>
         </li>
       </ol>
@@ -673,6 +677,15 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
+    // Render math notation in the Method section (KaTeX, \( ... \) delimiters).
+    var methodSection = document.getElementById('method');
+    if (methodSection && window.renderMathInElement) {
+      window.renderMathInElement(methodSection, {
+        delimiters: [{ left: '\\(', right: '\\)', display: false }],
+        throwOnError: false
+      });
+    }
+
     // Scroll-spy: highlight the side-nav item for the section in view.
     var navLinks = document.querySelectorAll('.side-nav a');
     var linkByTarget = {};
