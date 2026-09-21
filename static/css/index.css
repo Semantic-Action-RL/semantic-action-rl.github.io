@@ -461,6 +461,78 @@ html {
   color: #333;
 }
 
+/* Short intro text inside an insight (details) block */
+.why-works .insight-note {
+  margin: 1.25rem 1.25rem 0;
+}
+.why-works .insight-note:last-child {
+  margin-bottom: 1.25rem;
+}
+
+/* Half-width, centered figure variant (placed after .why-works .fig so it wins the margin) */
+.fig.narrow {
+  max-width: 50%;
+  margin: 1.5rem auto;
+}
+@media (max-width: 768px) {
+  .fig.narrow { max-width: none; margin: 1.25rem; }
+}
+
+/* Results tables — booktabs-style, used inside the insight blocks */
+.results-table {
+  max-width: 640px;
+  margin: 1.5rem auto;
+  padding: 0 1.25rem;
+}
+.results-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+  border-top: 2px solid #333;
+  border-bottom: 2px solid #333;
+  background: #fff;
+}
+/* the extra "table" in the selectors outweighs Bulma's td:not([align]) rule */
+.results-table table th,
+.results-table table td {
+  padding: 0.5rem 0.65rem;
+  text-align: center;
+  vertical-align: middle;
+}
+.results-table table th:first-child,
+.results-table table td:first-child {
+  text-align: left;
+}
+.results-table thead th {
+  font-family: 'Google Sans', sans-serif;
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1.25;
+  border-bottom: 1px solid #333;
+}
+.results-table tr.rule td { border-top: 1px solid #c9c9c9; }
+.results-table td.best { font-weight: 700; }
+.results-table th.ours-col,
+.results-table td.ours-col { background: rgba(30, 132, 73, 0.06); }
+.results-table th.ours-col { color: #1e8449; }
+.results-table .table-notes {
+  font-size: 0.8rem;
+  color: #777;
+  text-align: left;
+  line-height: 1.45;
+  margin-top: 0.45rem;
+}
+.results-table .table-caption {
+  font-size: 0.92rem;
+  color: #555;
+  text-align: justify;
+  margin-top: 0.6rem;
+}
+.results-table .table-caption .fig-num {
+  font-weight: 700;
+  color: #333;
+}
+
 /* "Why" cards: hard to prompt / VLMs not enough / need RL */
 .why-grid {
   display: grid;
@@ -649,11 +721,11 @@ video:hover {
 .timelapse-cell .timelapse-label {
   font-family: 'Google Sans', sans-serif;
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.85rem;
   line-height: 1.4;
-  /* reserve two lines so single- and double-line labels align,
-     and the videos below them always start at the same height */
-  min-height: 2.8em;
+  /* labels are sized to fit on one line; reserve it so the videos
+     below them always start at the same height */
+  min-height: 1.4em;
   display: flex;
   align-items: flex-end;
   margin-bottom: 0.5rem;
